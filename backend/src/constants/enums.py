@@ -12,6 +12,7 @@ class RuleStatus(str, Enum):
     rejected = "rejected"
     blocked = "blocked"
     published = "published"
+    invalidated = "invalidated"
 
 
 class PromotionStatus(str, Enum):

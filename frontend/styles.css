@@ -23,3 +23,13 @@
 .promo-summary dd { margin: 5px 0 0; font-size: 15px; font-weight: 800; overflow-wrap: anywhere; }
 #settlement-form { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 16px; }
 @media (max-width: 460px) { .promo-heading { align-items: flex-start; } }
+.status-invalidated{color:var(--red);border-color:var(--red);background:oklch(96% .02 28)}
+.evidence-panel{margin-top:14px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.evidence-panel summary{cursor:pointer;padding:12px 14px;font-weight:600;list-style:none}
+.evidence-panel summary::-webkit-details-marker{display:none}
+.evidence-panel[open] summary{border-bottom:1px solid var(--line)}
+.evidence-table{font-size:12px;width:100%}
+.evidence-table th,.evidence-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+.version-chip{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:2px 8px;color:var(--muted);white-space:nowrap}
+.correction-form{display:grid;gap:10px;margin-top:12px}
+.correction-form textarea{min-height:70px}

@@ -6,6 +6,7 @@ from .config import MYSQL
 from .models.basket_offer import BASKET_OFFER_SCHEMA
 from .models.basket_receipt import BASKET_RECEIPT_SCHEMA
 from .models.promotion import PROMOTION_SCHEMA
+from .models.sample_version import SAMPLE_VERSION_SCHEMA, COLUMN_PATCHES
 
 SCHEMA = [
 """CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(120) UNIQUE NOT NULL, display_name VARCHAR(80) NOT NULL, role VARCHAR(30) NOT NULL, password_hash CHAR(64) NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""",
@@ -29,13 +30,28 @@ def init_db():
         try:
             with connect() as conn:
                 with conn.cursor() as cur:
-                    for sql in [*SCHEMA, *PROMOTION_SCHEMA, *BASKET_OFFER_SCHEMA, *BASKET_RECEIPT_SCHEMA]:
+                    for sql in [*SCHEMA, *PROMOTION_SCHEMA, *BASKET_OFFER_SCHEMA,
+                                *BASKET_RECEIPT_SCHEMA, *SAMPLE_VERSION_SCHEMA]:
                         cur.execute(sql)
+                    ensure_columns(cur)
+                    cur.execute("INSERT IGNORE INTO sample_state(id, current_version) VALUES(1, 0)")
             return
         except Exception:
             if attempt == 29:
                 raise
             time.sleep(2)
+
+
+def ensure_columns(cur):
+    """Add additive columns onto databases created by earlier snapshots."""
+    for table, columns in COLUMN_PATCHES.items():
+        cur.execute(
+            "SELECT COLUMN_NAME FROM information_schema.COLUMNS "
+            "WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=%s", (table,))
+        existing = {row["COLUMN_NAME"] for row in cur.fetchall()}
+        for name, ddl in columns:
+            if name not in existing:
+                cur.execute(f"ALTER TABLE {table} ADD COLUMN {name} {ddl}")
 
 def fetch_all(sql, args=()):
     with connect() as conn:
